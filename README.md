@@ -1,8 +1,62 @@
-# BBR-Review
+<h1 align="center">BBR-Review</h1>
 
-> **Bug Bounty Report Review** — バグバウンティレポートの下書きを体系的に簡易レビューする [Claude Code](https://claude.com/claude-code) スキル。
+<p align="center">
+  <b>Bug Bounty Report Review</b><br>
+  バグバウンティレポートの下書きを <b>13 観点 / 100 点満点</b> で体系的に簡易レビューする <a href="https://claude.com/claude-code">Claude Code</a> スキル
+</p>
 
-提出前のレポートを **13 観点 / 100 点満点** でスコアリングし、`Submit-ready` から `Do not submit` までのレディネス、報告蓋然性、そして **Accepted / Informative / Duplicate / OOS / N/A / Spam** の処理結果確率まで予測します。HackerOne / Bugcrowd / Intigriti / YesWeHack の公式ガイドラインを統合した観点で、**Informative・Not Applicable・Spam・Reputation 棄損・アカウント停止のリスクを提出前に潰す**ことを目的としています。
+<p align="center">
+  <a href="#ライセンス"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+  <a href="https://claude.com/claude-code"><img alt="Claude Code v2.x+" src="https://img.shields.io/badge/Claude%20Code-v2.x%2B-orange.svg"></a>
+  <a href="#"><img alt="Type: Skill" src="https://img.shields.io/badge/Type-Skill-green.svg"></a>
+  <a href="#参考にした公式ガイドライン"><img alt="HackerOne · Bugcrowd · Intigriti · YesWeHack" src="https://img.shields.io/badge/Platforms-HackerOne%20%7C%20Bugcrowd%20%7C%20Intigriti%20%7C%20YesWeHack-purple.svg"></a>
+  <a href="https://github.com/scgajge12"><img alt="Made by morioka12" src="https://img.shields.io/badge/Made%20by-morioka12-1da1f2.svg"></a>
+</p>
+
+<p align="center">
+  <i>「Informative・Not Applicable・Spam・Reputation 棄損・アカウント停止のリスクを、提出前に機械的に潰す。」</i>
+</p>
+
+---
+
+## 30 秒でわかる BBR-Review
+
+提出前のレポートを **13 観点 / 100 点満点** でスコアリングし、`Submit-ready` から `Do not submit` までのレディネス、報告蓋然性、そして **Accepted / Informative / Duplicate / OOS / N/A / Spam** の処理結果確率まで予測します。
+
+```text
+Bug Bounty Report Review
+
+TL;DR
+  総合スコア   : 67 / 100  （レディネス：Needs work）
+  報告蓋然性    : Likely
+  処理結果予測  : Accepted 30% / Informative 50% / Duplicate 15% / その他 5%
+  品質汚染     : 軽度（汎用テンプレ臭あり）
+  規約違反リスク : なし
+
+最重要の指摘 3 つ
+  1. 攻撃シナリオの「準備 → 実行 → 結果」が分断されている
+  2. CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:N — UI が N の方が妥当
+  3. PoC スクリプトに不要な解析ライブラリ依存。標準ライブラリのみで再構築すべき
+```
+
+レビューは「採点」ではなく **「ハンターとトリアージャー双方の負担を減らし、開発者の修正に直結する資料へ共同制作する」** 立場で具体的な書き直し案まで提示します。
+
+---
+
+## 目次
+
+- [なぜ必要か](#なぜ必要か)
+- [主な機能](#主な機能)
+- [インストール](#インストール)
+- [使い方](#使い方)
+- [出力フォーマット](#出力フォーマット)
+- [ディレクトリ構成](#ディレクトリ構成)
+- [設計思想](#設計思想)
+- [参考にした公式ガイドライン](#参考にした公式ガイドライン)
+- [免責事項](#免責事項)
+- [動作環境](#動作環境)
+- [ライセンス](#ライセンス)
+- [著者](#著者)
 
 ---
 
@@ -16,10 +70,8 @@
 
 BBR-Review は、こうしたペナルティリスクと品質欠落を **提出前の段階で機械的に検出** することを目的としています。
 
-### 本スキルの題材
-
-- Book: [脱初心者のための実践バグバウンティ登竜門](https://zenn.dev/scgajge12/books/06d5b176dfe0d7)
-  - Chapter 24: 【5.1. 高品質なレポートの書き方】
+> **本スキルの題材**
+> [脱初心者のための実践バグバウンティ登竜門](https://zenn.dev/scgajge12/books/06d5b176dfe0d7) — Chapter 24: 5.1. 高品質なレポートの書き方
 
 ---
 
@@ -28,34 +80,34 @@ BBR-Review は、こうしたペナルティリスクと品質欠落を **提出
 ### 13 観点・100 点満点での体系的スコアリング
 
 | # | 観点 | 重み |
-|---|------|------|
+|:--:|------|:--:|
 | 1  | スコープ・所有権 | 6 |
 | 2  | タイトル | 5 |
 | 3  | Description（概要） | 6 |
-| 4  | 再現手順 + Environment / Test Accounts | 12 |
-| 5  | PoC（HTTP / スクリプトの品質） | 12 |
-| 6  | 影響度（Impact） | 10 |
-| 7  | **攻撃シナリオの解像度（Attacker→Victim→System）** | 8 |
+| 4  | 再現手順 + Environment / Test Accounts | **12** |
+| 5  | PoC（HTTP / スクリプトの品質） | **12** |
+| 6  | 影響度（Impact） | **10** |
+| 7  | 攻撃シナリオの解像度（Attacker→Victim→System） | 8 |
 | 8  | Severity / CVSS | 7 |
 | 9  | CWE / 参考文献 | 3 |
 | 10 | Recommended Fix（修正提案） | 5 |
 | 11 | Supporting Material（スクショ・動画） | 6 |
-| 12 | トーン・体裁・Markdown | 10 |
-| 13 | **品質汚染チェック（スキャナ / AI / 汎用テンプレ）** | 10 |
+| 12 | トーン・体裁・Markdown | **10** |
+| 13 | 品質汚染チェック（スキャナ / AI / 汎用テンプレ） | **10** |
 
 > **再現手順 + PoC + Impact + 攻撃シナリオ + 品質汚染で 52 点を占める** 配分。トリアージャー視点での「却下・差戻し・Reputation 棄損リスク」の大きさに比例しています。
 
 ### スコアリング基準
 
 | スコア | レディネス | 推奨アクション |
-|--------|-----------|---------------|
-| 90-100 | **Submit-ready** | このまま提出推奨。微修正のみ。 |
-| 75-89  | **Almost ready** | 致命傷なし。指摘点を反映してから提出。 |
-| 60-74  | **Needs work** | トリアージャーから差戻し質問が来る可能性が高い。 |
-| 40-59  | **Major rewrite** | 構造から書き直し推奨。Informative リスクあり。 |
-| 0-39   | **Do not submit** | 報告に値する根拠が不足、または Reputation 棄損リスク。 |
+|:--:|---|---|
+| **90 - 100** | `Submit-ready`     | このまま提出推奨。微修正のみ。 |
+| **75 - 89**  | `Almost ready`     | 致命傷なし。指摘点を反映してから提出。 |
+| **60 - 74**  | `Needs work`       | トリアージャーから差戻し質問が来る可能性が高い。 |
+| **40 - 59**  | `Major rewrite`    | 構造から書き直し推奨。Informative リスクあり。 |
+| **0 - 39**   | `Do not submit`    | 報告に値する根拠が不足、または Reputation 棄損リスク。 |
 
-> **観点 13（品質汚染）が 5 以下、または観点 12 でゼロ点（Beg Bounty / 脅迫）の場合は、合計スコアに関係なくレディネスを `Do not submit` に上書き** します。
+> 観点 13（品質汚染）が 5 以下、または観点 12 でゼロ点（Beg Bounty / 脅迫）の場合は、**合計スコアに関係なくレディネスを `Do not submit` に上書き** します。
 
 ### 品質汚染インジケータの自動検出
 
@@ -81,7 +133,7 @@ Intigriti が明示的に禁止している以下の兆候を検出し、観点 
 
 `Submit-ready` という判定だけでは不足です。Intigriti 公式トリアージスタンダード（v1.3）と HackerOne / Bugcrowd の実運用に基づき、確率分布で予測します。
 
-```
+```text
 予測される処理結果:
   Accepted     30%
   Informative  50%
@@ -93,10 +145,10 @@ Intigriti が明示的に禁止している以下の兆候を検出し、観点 
 
 Bugcrowd 公式の指摘 — **初心者の却下理由は「再現できない」よりも「攻撃シナリオが非現実的」が多い** に対応するため、レポート本文に散逸している情報を 3 段で再構成します。欠落箇所は `[要追記]` で明示。
 
-```
-1. 準備 (Attacker)  - 必要な権限／前提、用意する payload・URL・リスナー
-2. 実行 (Victim)    - 被害者に求められるアクション、必要な前提条件
-3. 結果 (System)    - 直接的な技術的結果、CIA 影響、ビジネス的損害
+```text
+1. 準備 (Attacker) - 必要な権限／前提、用意する payload・URL・リスナー
+2. 実行 (Victim)   - 被害者に求められるアクション、必要な前提条件
+3. 結果 (System)   - 直接的な技術的結果、CIA 影響、ビジネス的損害
 ```
 
 ### CVSS / CWE の妥当性検証
@@ -151,7 +203,7 @@ claude
 
 このプロジェクトは **`input/`（レビュー対象を置く）/ `output/`（レビュー結果が保存される）** のディレクトリ運用が前提です。
 
-```
+```text
 BBRReview/
 ├── input/      ← ここにレポートと画像を置く
 └── output/     ← レビュー結果がここに保存される
@@ -181,11 +233,11 @@ cp ~/Downloads/view-source.png  input/
 
 Claude Code でこのプロジェクト直下にいる状態で、以下のいずれかを伝えるとスキルが起動します。
 
-```
+```text
 input のレポートをレビューして
 ```
 
-```
+```text
 /bbr-review
 ```
 
@@ -203,7 +255,7 @@ input のレポートをレビューして
 
 レビュー結果は実行日時をファイル名として `output/` に保存されます。
 
-```
+```text
 output/review_YYYYMMDD_HHMMSS.md
 例：output/review_20260506_083045.md
 ```
@@ -214,7 +266,7 @@ output/review_YYYYMMDD_HHMMSS.md
 
 `input/` を使わず、チャットに直接レポート本文を貼り付ける従来のフローも引き続きサポートしています。
 
-```
+```text
 このレポートを提出前にレビューして
 
 [report.md の中身をチャットに直接貼り付け]
@@ -229,7 +281,9 @@ output/review_YYYYMMDD_HHMMSS.md
 - Burp の HTTP リクエスト/レスポンス（テキスト化 or スクショで）
 - PoC スクリプト単体（JS / Python / cURL）
 
-### 出力フォーマット（抜粋）
+---
+
+## 出力フォーマット
 
 ```markdown
 # Bug Bounty Report Review
@@ -267,7 +321,10 @@ output/review_YYYYMMDD_HHMMSS.md
 
 ## ディレクトリ構成
 
-```
+<details>
+<summary>クリックして展開</summary>
+
+```text
 BBRReview/
 ├── input/                            # レビュー対象（Markdown / テキスト / 画像）を配置
 │   └── README.md                     # input/ の使い方
@@ -288,6 +345,8 @@ BBRReview/
         ├── quality-pollution.md      # スキャナ / AI 生成検出指標、HackerOne 公式ポリシー、Hai Triage
         └── triage-process.md         # 状態判定マトリクス、Intigriti 禁止行為一覧
 ```
+
+</details>
 
 ---
 
