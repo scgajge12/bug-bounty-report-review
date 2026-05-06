@@ -19,7 +19,7 @@
 
 ---
 
-## 30 秒でわかる BBR-Review
+## BBR-Review
 
 提出前のレポートを **13 観点 / 100 点満点** でスコアリングし、`Submit-ready` から `Do not submit` までのレディネス、報告蓋然性、そして **Accepted / Informative / Duplicate / OOS / N/A / Spam** の処理結果確率まで予測します。
 
